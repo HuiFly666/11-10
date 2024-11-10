@@ -1,0 +1,42 @@
+import numpy as np  
+import matplotlib.pyplot as plt  
+from sklearn.model_selection import train_test_split  
+from sklearn.metrics import accuracy_score  
+import xgboost as xgb  
+
+def plot_learning_curve(X, y, model, params, dtest, y_test, train_sizes=None):  
+    # If no training sizes are provided, default to the maximum number of samples in the training set  
+    if train_sizes is None:  
+        train_sizes = np.linspace(0.1, 1.0, 10)  
+
+    train_scores = []  
+    test_scores = []  
+
+    for train_size in train_sizes:  
+        # Split the data according to the current training size  
+        X_train_partial, _, y_train_partial, _ = train_test_split(X, y, train_size=train_size, random_state=42)  
+        dtrain_partial = xgb.DMatrix(X_train_partial, label=y_train_partial)  
+
+        # Train the model  
+        model_trained = xgb.train(params, dtrain_partial, num_boost_round=100)  
+
+        # Predict on the training and test sets  
+        train_pred = model_trained.predict(dtrain_partial)  
+        test_pred = model_trained.predict(dtest)  
+
+        # Calculate accuracy  
+        train_accuracy = accuracy_score(y_train_partial, train_pred)  
+        test_accuracy = accuracy_score(y_test, test_pred)  
+
+        train_scores.append(train_accuracy)  
+        test_scores.append(test_accuracy)  
+
+    # Plot the learning curve  
+    plt.plot(train_sizes, train_scores, label='Training Accuracy', marker='o')  
+    plt.plot(train_sizes, test_scores, label='Validation Accuracy', marker='o')  
+    plt.title('Learning Curve')  
+    plt.xlabel('Training Size')  
+    plt.ylabel('Accuracy')  
+    plt.legend()  
+    plt.grid()  
+    plt.show()
