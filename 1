@@ -1,0 +1,36 @@
+def plot_learning_curve(X, y, model, params, train_sizes=None):  
+    # 如果没有提供训练集大小，默认最大为训练集的样本数  
+    if train_sizes is None:  
+        train_sizes = np.linspace(0.1, 1.0, 10)  
+
+    train_scores = []  
+    test_scores = []  
+
+    for train_size in train_sizes:  
+        # 根据当前训练集大小筛选数据  
+        X_train_partial, _, y_train_partial, _ = train_test_split(X, y, train_size=train_size, random_state=42)  
+        dtrain_partial = xgb.DMatrix(X_train_partial, label=y_train_partial)  
+        
+        # 训练模型  
+        model_trained = xgb.train(params, dtrain_partial, num_boost_round=100)  
+
+        # 预测训练集和测试集  
+        train_pred = model_trained.predict(dtrain_partial)  
+        test_pred = model_trained.predict(dtest)  
+
+        # 计算准确率  
+        train_accuracy = accuracy_score(y_train_partial, train_pred)  
+        test_accuracy = accuracy_score(y_test, test_pred)  
+
+        train_scores.append(train_accuracy)  
+        test_scores.append(test_accuracy)  
+
+    # 绘制学习曲线  
+    plt.plot(train_sizes, train_scores, label='Training Accuracy', marker='o')  
+    plt.plot(train_sizes, test_scores, label='Validation Accuracy', marker='o')  
+    plt.title('Learning Curve')  
+    plt.xlabel('Training Size')  
+    plt.ylabel('Accuracy')  
+    plt.legend()  
+    plt.grid()  
+    plt.show()
